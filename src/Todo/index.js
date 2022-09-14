@@ -1,4 +1,4 @@
-import { useReducer, useRef, useEffect } from 'react';
+import { useReducer, useRef, useEffect, Fragment } from 'react';
 import reducer, { initState } from './reducer';
 import { setJob, addJob, deleteJob, editJob, setSelected } from './actions'
 
@@ -30,6 +30,12 @@ function App() {
         buttonRef.current.innerText = 'Add'
     }
 
+    const checkEnter = (event) =>{
+        if (event.key === "Enter")
+           if  (selected === -1) handleAdd()
+           else handleEdit()
+    }
+
     const inputRef = useRef()
     const buttonRef = useRef()
 
@@ -37,6 +43,8 @@ function App() {
         const jsonJobs = JSON.stringify(jobs);
         localStorage.setItem('jobsList',jsonJobs)
     },[jobs])
+
+
 
     return (
         <div className="App">
@@ -48,13 +56,15 @@ function App() {
                 onChange={e => {
                     dispatch(setJob(e.target.value))
                 }}
+                onKeyDown = {(e) => checkEnter(e)}
             />
             <button ref = {buttonRef} onClick={selected === -1 ? handleAdd : handleEdit}>Add</button>
             <ul>
                 {jobs.map((job, index) =>
-                    <li key={index} onClick = {() => handleSelected(job,index)}>
-                        { job }
+                    <li key={index} >
+                        <span onClick = {() => handleSelected(job,index)}>{ job }</span>
                         <button onClick={() => dispatch(deleteJob(index))} >Delete</button>
+                        {job === ''? dispatch(deleteJob(index)): Fragment}
                     </li>
                 )}
             </ul>
