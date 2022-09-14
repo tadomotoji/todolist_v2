@@ -34,8 +34,8 @@ function App() {
     const buttonRef = useRef()
 
     useEffect(()=>{
-        const arr = JSON.stringify(jobs);
-        localStorage.setItem('jobsList',arr)
+        const jsonJobs = JSON.stringify(jobs);
+        localStorage.setItem('jobsList',jsonJobs)
     },[jobs])
 
     return (
