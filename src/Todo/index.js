@@ -1,19 +1,42 @@
-import { useReducer, useRef } from 'react';
+import { useReducer, useRef, useEffect } from 'react';
 import reducer, { initState } from './reducer';
-import { setJob, addJob, deleteJob } from './actions'
+import { setJob, addJob, deleteJob, editJob, setSelected } from './actions'
+
+
+
 
 function App() {
     const [state, dispatch] = useReducer(reducer, initState)
-    const { job, jobs } = state;
-
-    const handleSubmit = () => {
+    const { job, jobs, selected } = state;
+    const handleAdd = () => {
         dispatch(addJob(job));
         dispatch(setJob(''))
         inputRef.current.focus()
     }
-
+    const handleSelected = (job, index) =>{
+        dispatch(setJob(job))
+        dispatch(setSelected(index))
+        inputRef.current.focus()
+        buttonRef.current.innerText = 'Update'
+        }
+    const handleEdit = (index) => {
+        dispatch(editJob({
+            index: selected,
+            value: job
+        }));
+        dispatch(setJob(''));
+        dispatch(setSelected(-1));
+        inputRef.current.focus();
+        buttonRef.current.innerText = 'Add'
+    }
 
     const inputRef = useRef()
+    const buttonRef = useRef()
+
+    useEffect(()=>{
+        const arr = JSON.stringify(jobs);
+        localStorage.setItem('jobsList',arr)
+    },[jobs])
 
     return (
         <div className="App">
@@ -26,13 +49,14 @@ function App() {
                     dispatch(setJob(e.target.value))
                 }}
             />
-            <button onClick={handleSubmit}>Add</button>
+            <button ref = {buttonRef} onClick={selected === -1 ? handleAdd : handleEdit}>Add</button>
             <ul>
-                {jobs.map((job, index) => (
-                    <li key={index}>{job}
+                {jobs.map((job, index) =>
+                    <li key={index} onClick = {() => handleSelected(job,index)}>
+                        { job }
                         <button onClick={() => dispatch(deleteJob(index))} >Delete</button>
                     </li>
-                ))}
+                )}
             </ul>
         </div>
     );
